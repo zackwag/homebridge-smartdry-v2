@@ -1,16 +1,122 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
-  "pluginType": "platform",
-  "singular": true,
-  "schema": {
-    "type": "object",
-    "properties": {
-      "name": {
-        "title": "Name",
-        "type": "string",
-        "required": true,
-        "default": "Example Dynamic Platform"
-      }
+    "pluginAlias": "HomebridgeSmartDryV2",
+    "pluginType": "platform",
+    "singular": true,
+    "schema": {
+        "type": "object",
+        "properties": {
+            "name": {
+                "title": "Platform Name",
+                "type": "string",
+                "default": "Homebridge SmartDry v2",
+                "description": "This is the name that will be used for all logs pertaining to this platform.",
+                "required": true
+            },
+            "sensors": {
+                "type": "array",
+                "items": {
+                    "title": "Sensors",
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "title": "Name",
+                            "type": "string",
+                            "description": "A friendly name to identify your sensor by (i.e. Laundry Room Dryer)",
+                            "required": true
+                        },
+                        "id": {
+                            "title": "SmartDry ID",
+                            "type": "string",
+                            "description": "The six character ID visible in your SmartDry app",
+                            "required": true
+                        },
+                        "occupancySensor": {
+                            "type": "object",
+                            "properties": {
+                                "isEnabled": {
+                                    "title": "Enable Occupancy Sensor",
+                                    "type": "boolean",
+                                    "default": true
+                                }
+                            }
+                        },
+                        "temperatureSensor": {
+                            "type": "object",
+                            "properties": {
+                                "isEnabled": {
+                                    "title": "Enable Temperature Sensor",
+                                    "type": "boolean",
+                                    "default": true
+                                }
+                            }
+                        },
+                        "humiditySensor": {
+                            "type": "object",
+                            "properties": {
+                                "isEnabled": {
+                                    "title": "Enable Humidity Sensor",
+                                    "type": "boolean",
+                                    "default": true
+                                }
+                            }
+                        },
+                        "leakSensor": {
+                            "type": "object",
+                            "properties": {
+                                "isEnabled": {
+                                    "title": "Enable Leak Sensor",
+                                    "type": "boolean",
+                                    "default": true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "pollingSeconds": {
+                "title": "Polling Interval",
+                "type": "number",
+                "placeholder": 30,
+                "description": "Interval (in seconds) to check status and update accessories."
+            }
+        },
+        "layout": [
+            {
+                "type": "section",
+                "title": "Plugin Settings",
+                "items": [
+                    "name"
+                ]
+            },
+            {
+                "type": "section",
+                "items": [
+                    {
+                        "key": "sensors",
+                        "title": "SmartDry Sensors",
+                        "type": "array",
+                        "orderable": false,
+                        "buttonText": "Add SmartDry Sensor",
+                        "items": [
+                            "sensors[].name",
+                            "sensors[].id",
+                            "sensors[].occupancySensor.isEnabled",
+                            "sensors[].temperatureSensor.isEnabled",
+                            "sensors[].humiditySensor.isEnabled",
+                            "sensors[].leakSensor.isEnabled"
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "section",
+                "title": "Advanced Settings",
+                "expandable": true,
+                "expanded": false,
+                "items": [
+                    "pollingSeconds"
+                ]
+            }
+        ]
     }
-  }
 }
