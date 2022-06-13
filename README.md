@@ -1,150 +1,111 @@
+# homebridge-smartdry
 
-<p align="center">
+## What This Plugin Is
+This is a plugin for [homebridge](https://github.com/homebridge/homebridge). It provides sensor data from the [SmartDry Sensor](https://www.connectedlifelabs.com/meetsmartdry).
 
-<img src="https://github.com/homebridge/branding/raw/master/logos/homebridge-wordmark-logo-vertical.png" width="150">
+## How the Plugin Works
+SmartDry data is stored in AWS RDS. This API periodically queries the database for information pertaining to your sensor and then updates
+virtual sensors with the data.
 
-</p>
+The `Occupancy Sensor` will stay `Occupied` as long as the sensor is running. The minimum amount of time is 15 minutes. To automate an
+action (such as sending a notification), you can put an action on when the sensor stops detecting occupancy.
 
+The `Leak Sensor` will show if the clothes are truly dry. This runs external to the load time. So it is theoretically possible for the
+SmartDry sensor to not be "running" but the clothes are still wet. **NOTE** The `Leak Sensor` uses Critical Alerts in modern versions of the
+Home app. Please be careful when using it or you could generate scary notifications.
 
-# Homebridge Platform Plugin Template
+## Installation
 
-This is a template Homebridge platform plugin and can be used as a base to help you get started developing your own plugin.
+Before installing this plugin, you should install Homebridge using the [official instructions](https://github.com/homebridge/homebridge/wiki).
 
-This template should be used in conjunction with the [developer documentation](https://developers.homebridge.io/). A full list of all supported service types, and their characteristics is available on this site.
+### Install via Homebridge Config UI X
+1. Search for `Homebridge SmartDry v2` on the Plugins tab of [Config UI X](https://www.npmjs.com/package/homebridge-config-ui-x).
+2. Install the `Homebridge SmartDry v2` plugin and use the form to enter your configuration.
 
-## Clone As Template
+### Manual Installation
+2. Install this plug-in using: `npm install -g homebridge-smartdry-v2`
+3. Update your configuration file. See example `config.json` snippet below.
+## Manual Configuration
+### Platform Schema
 
-Click the link below to create a new GitHub Repository using this template, or click the *Use This Template* button above.
+| Field | Required | Data Type | Description                   | Default Value |
+| ------| :------: | :--------: | ----------------------------- | :----------: |
+| **platform** | *Yes* | string | Must always be set to `HomebridgeSmartDryV2`.| N/A |
+| **name** | *Yes* | string | Set the platform name for display in the Homebridge logs. | `Homebridge SmartDry v2` |
+| **sensors** | *Yes* | sensor[] | An array of configurations for SmartDry sensors. | N/A |
+| **pollingSeconds**| No | number | Time in seconds for how often to ping the clock. | `30` (30000 milliseconds) |
 
-<span align="center">
+#### Sensor Schema
 
-### [Create New Repository From Template](https://github.com/homebridge/homebridge-plugin-template/generate)
+| Field | Required | Data Type | Description                   | Default Value |
+| ------| :------: | :-------: | ----------------------------- | :-----------: |
+| **name** | *Yes* | string | The name of the SmartDry Sensor. It will be used as a prefix for all of the accessories it exposes. | N/A |
+| **ip** | *Yes* | string | ID of the SmartDry sensor. | N/A |
+| **occupancySensor** | *Yes* | sensorConfig | Settings for virtual occupancy sensor. | N/A |
+| **temperatureSensor** | *Yes* | sensorConfig | Settings for virtual temperature sensor. | N/A |
+| **humiditySensor** | *Yes* | sensorConfig | Settings for the virtual humidity sensor. | N/A |
+| **leakSensor** | *Yes* | sensorConfig | Settings for the virtual leak sensor. | N/A |
 
-</span>
+##### SensorConfig Schema
 
-## Setup Development Environment
+| Field | Required | Data Type | Description                   | Default Value |
+| ------| :------: | :-------: | ----------------------------- | :-----------: |
+| **isEnabled** | No | boolean | Determines whether or not to expose the sensor. | `true` |
 
-To develop Homebridge plugins you must have Node.js 12 or later installed, and a modern code editor such as [VS Code](https://code.visualstudio.com/). This plugin template uses [TypeScript](https://www.typescriptlang.org/) to make development easier and comes with pre-configured settings for [VS Code](https://code.visualstudio.com/) and ESLint. If you are using VS Code install these extensions:
+### Config Examples
 
-* [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+#### Simplest Configuration
 
-## Install Development Dependencies
+This configuration will expose all items and use the default polling interval with the least work.
 
-Using a terminal, navigate to the project folder and run this command to install the development dependencies:
-
-```
-npm install
-```
-
-## Update package.json
-
-Open the [`package.json`](./package.json) and change the following attributes:
-
-* `name` - this should be prefixed with `homebridge-` or `@username/homebridge-` and contain no spaces or special characters apart from a dashes
-* `displayName` - this is the "nice" name displayed in the Homebridge UI
-* `repository.url` - Link to your GitHub repo
-* `bugs.url` - Link to your GitHub repo issues page
-
-When you are ready to publish the plugin you should set `private` to false, or remove the attribute entirely.
-
-## Update Plugin Defaults
-
-Open the [`src/settings.ts`](./src/settings.ts) file and change the default values:
-
-* `PLATFORM_NAME` - Set this to be the name of your platform. This is the name of the platform that users will use to register the plugin in the Homebridge `config.json`.
-* `PLUGIN_NAME` - Set this to be the same name you set in the [`package.json`](./package.json) file. 
-
-Open the [`config.schema.json`](./config.schema.json) file and change the following attribute:
-
-* `pluginAlias` - set this to match the `PLATFORM_NAME` you defined in the previous step.
-
-## Build Plugin
-
-TypeScript needs to be compiled into JavaScript before it can run. The following command will compile the contents of your [`src`](./src) directory and put the resulting code into the `dist` folder.
-
-```
-npm run build
-```
-
-## Link To Homebridge
-
-Run this command so your global install of Homebridge can discover the plugin in your development environment:
-
-```
-npm link
+```json
+{
+  "name": "Homebridge SmartDry v2",
+  "sensors": [
+    {
+      "name": "Laundry Room Dryer",
+      "id": "[INSERT_ID_HERE]"
+    }
+  ],
+  "platform": "HomebridgeSmartDryV2"
+}
 ```
 
-You can now start Homebridge, use the `-D` flag so you can see debug log messages in your plugin:
+#### Most Verbose Configuration
 
+This configuration will expose all items with default values, but is very verbose. It is presented here to help visualize the JSON structure.
+
+
+```json
+{
+  "name": "Homebridge SmartDry v2",
+  "sensors": [
+    {
+      "name": "Laundry Room Dryer",
+      "id": "[INSERT_ID_HERE]",
+      "occupancySensor": {
+        "isEnabled": true
+      },
+      "temperatureSensor": {
+        "isEnabled": true
+      },
+      "humiditySensor": {
+        "isEnabled": true
+      },
+      "leakSensor": {
+        "isEnabled": true
+      }
+    }
+  ],
+  "platform": "HomebridgeSmartDryV2"
+}
 ```
-homebridge -D
-```
+## Future Plans
+- Better error handling. I am a Java developer by trade and am still learning Typescript :).
 
-## Watch For Changes and Build Automatically
+## Recognition
+Thanks to:
 
-If you want to have your code compile automatically as you make changes, and restart Homebridge automatically between changes you can run:
-
-```
-npm run watch
-```
-
-This will launch an instance of Homebridge in debug mode which will restart every time you make a change to the source code. It will load the config stored in the default location under `~/.homebridge`. You may need to stop other running instances of Homebridge while using this command to prevent conflicts. You can adjust the Homebridge startup command in the [`nodemon.json`](./nodemon.json) file.
-
-## Customise Plugin
-
-You can now start customising the plugin template to suit your requirements.
-
-* [`src/platform.ts`](./src/platform.ts) - this is where your device setup and discovery should go.
-* [`src/platformAccessory.ts`](./src/platformAccessory.ts) - this is where your accessory control logic should go, you can rename or create multiple instances of this file for each accessory type you need to implement as part of your platform plugin. You can refer to the [developer documentation](https://developers.homebridge.io/) to see what characteristics you need to implement for each service type.
-* [`config.schema.json`](./config.schema.json) - update the config schema to match the config you expect from the user. See the [Plugin Config Schema Documentation](https://developers.homebridge.io/#/config-schema).
-
-## Versioning Your Plugin
-
-Given a version number `MAJOR`.`MINOR`.`PATCH`, such as `1.4.3`, increment the:
-
-1. **MAJOR** version when you make breaking changes to your plugin,
-2. **MINOR** version when you add functionality in a backwards compatible manner, and
-3. **PATCH** version when you make backwards compatible bug fixes.
-
-You can use the `npm version` command to help you with this:
-
-```bash
-# major update / breaking changes
-npm version major
-
-# minor update / new features
-npm version update
-
-# patch / bugfixes
-npm version patch
-```
-
-## Publish Package
-
-When you are ready to publish your plugin to [npm](https://www.npmjs.com/), make sure you have removed the `private` attribute from the [`package.json`](./package.json) file then run:
-
-```
-npm publish
-```
-
-If you are publishing a scoped plugin, i.e. `@username/homebridge-xxx` you will need to add `--access=public` to command the first time you publish.
-
-#### Publishing Beta Versions
-
-You can publish *beta* versions of your plugin for other users to test before you release it to everyone.
-
-```bash
-# create a new pre-release version (eg. 2.1.0-beta.1)
-npm version prepatch --preid beta
-
-# publsh to @beta
-npm publish --tag=beta
-```
-
-Users can then install the  *beta* version by appending `@beta` to the install command, for example:
-
-```
-sudo npm install -g homebridge-example-plugin@beta
-```
-
-
+* [homebridge](https://github.com/homebridge/homebridge-plugin-template) - For creating a great template to get started with.
+* [fototeddy](https://github.com/ablyler/homebridge-smartdry) - For creating an original SmartDry plugin.
+* [doublebishop](https://community.home-assistant.io/t/clothes-dryer-automations/149017/76) - For simplifying the "wetness" algorithm.
