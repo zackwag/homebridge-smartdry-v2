@@ -107,5 +107,5 @@ This configuration will expose all items with default values, but is very verbos
 Thanks to:
 
 * [homebridge](https://github.com/homebridge/homebridge-plugin-template) - For creating a great template to get started with.
-* [fototeddy](https://github.com/ablyler/homebridge-smartdry) - For creating an original SmartDry plugin.
+* [ablyler](https://github.com/ablyler/homebridge-smartdry) - For creating an original SmartDry plugin.
 * [doublebishop](https://community.home-assistant.io/t/clothes-dryer-automations/149017/76) - For simplifying the "wetness" algorithm.
