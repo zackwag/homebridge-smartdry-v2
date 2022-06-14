@@ -2,7 +2,7 @@
   "private": true,
   "displayName": "Homebridge SmartDry v2",
   "name": "homebridge-smartdry-v2",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "SmartDry plug-in for homebridge",
   "license": "Apache-2.0",
   "repository": {
